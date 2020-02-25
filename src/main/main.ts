@@ -6,6 +6,7 @@ import * as path from "path";
 import * as url from "url";
 
 import "./tm";
+import "./ws";
 
 let mainWindow: Electron.BrowserWindow | null;
 
