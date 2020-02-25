@@ -1,5 +1,5 @@
 {
-  "name": "electron-react-typescript-webpack-boilerplate",
+  "name": "vexiq-skills",
   "version": "2.0.2",
   "description": "Pre-configured boilerplate for Electron + React + TypeScript",
   "main": "./dist/main.bundle.js",
@@ -12,8 +12,8 @@
     "build:mac": "electron-builder build --mac --x64"
   },
   "build": {
-    "appId": "com.devtography.electron_boilerplate",
-    "productName": "Electron+React+TypeScript Boilerplate",
+    "appId": "org.mannrobo.vexiq-skills",
+    "productName": "VEX IQ Skills",
     "directories": {
       "app": "./dist/",
       "output": "./out/"
@@ -27,7 +27,7 @@
     },
     "buildVersion": "1.0.0"
   },
-  "author": "Wing Chau @Devtography",
+  "author": "Brendan McGuire",
   "license": "MIT",
   "dependencies": {
     "@types/react": "^16.9.13",
@@ -71,17 +71,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Devtography/electron-react-typescript-webpack-boilerplate"
+    "url": "git+https://github.com/mannrobo/vex-iq"
   },
-  "keywords": [
-    "boilerplate",
-    "Electron",
-    "React",
-    "Typescript",
-    "Webpack"
-  ],
+  "keywords": [],
   "bugs": {
-    "url": "https://github.com/Devtography/electron-react-typescript-webpack-boilerplate/issues"
+    "url": "https://github.com/mannrobo/vex-iq/issues"
   },
-  "homepage": "https://github.com/Devtography/electron-react-typescript-webpack-boilerplate#readme"
+  "homepage": "https://github.com/mannrobo/vex-iq#readme"
 }
