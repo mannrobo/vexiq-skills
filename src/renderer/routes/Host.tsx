@@ -11,18 +11,15 @@ import {
   Alert
 } from "antd";
 import { networkInterfaces, NetworkInterfaceInfoIPv4 } from "os";
-import Client, { AuthenticatedRole } from "vex-tm-client";
 import { Switch, Route } from "react-router";
 import { HashRouter as Router } from "react-router-dom";
 
+import { ipcRenderer, IpcMessageEvent } from "electron";
+import Fieldset from "vex-tm-client/out/Fieldset";
+import Division from "vex-tm-client/out/Division";
+
 const { Header, Footer, Sider, Content } = Layout;
 const { Title } = Typography;
-
-const tmClient = new Client(
-  "http://localhost",
-  AuthenticatedRole.ADMINISTRATOR,
-  ""
-);
 
 const lanInterfaces = networkInterfaces()["en0"].filter(
   lan => lan.family === "IPv4"
@@ -33,10 +30,15 @@ export default class HostRoute extends React.Component {
     tm: {
       connected: false,
       connecting: false,
-      address: "",
-      password: "",
+      address: sessionStorage.getItem("tm-address") || "",
+      password: sessionStorage.getItem("tm-password") || "",
       error: ""
-    }
+    },
+    event: {
+      divisions: [] as Division[],
+      fieldsets: [] as Fieldset[]
+    },
+    clients: []
   };
 
   handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -49,44 +51,46 @@ export default class HostRoute extends React.Component {
       }
     });
 
-    tmClient.address = "http://" + this.state.tm.address;
-    tmClient.password = this.state.tm.password;
+    ipcRenderer.send(
+      "tm-connect",
+      "http://" + this.state.tm.address,
+      this.state.tm.password
+    );
+    ipcRenderer.on(
+      "tm-connection-successful",
+      (e: IpcMessageEvent, event: any) => {
+        this.setState({
+          tm: {
+            ...this.state.tm,
+            connecting: false,
+            connected: true
+          },
+          event
+        });
 
-    console.log(tmClient);
-
-    try {
-      await tmClient.connect();
-
-      this.setState({
-        ...this.state.tm,
-        connected: true,
-        connecting: false,
-        error: ""
-      });
-
-      window.location.replace("/host/connected");
-    } catch (e) {
-      console.log(e);
-      this.setState({
-        tm: {
-          ...this.state.tm,
-          connected: false,
-          connecting: false,
-          error:
-            "Could not check to Tournament Manager, check credentials and try again"
-        }
-      });
-    }
+        window.location.hash = "#/host/connected";
+        sessionStorage.setItem("tm-address", this.state.tm.address);
+        sessionStorage.setItem("tm-password", this.state.tm.password);
+      }
+    );
   };
 
   render() {
+    if (
+      window.location.hash == "#/host/connected" &&
+      !this.state.tm.connected
+    ) {
+      window.location.hash = "#/host";
+    }
+
     return (
       <Layout id="host">
         <header>
           <p>
             {lanInterfaces.length > 0
               ? lanInterfaces.map(lan => `ws://${lan.address}`).join(", ")
-              : "No LAN Addresses Found"}
+              : "No LAN Addresses Found"}{" "}
+            ({this.state.clients.length} clients connected)
           </p>
           <p>
             {!this.state.tm.connected ? "Not " : ""}Connected to Tournament
@@ -94,16 +98,20 @@ export default class HostRoute extends React.Component {
           </p>
         </header>
         <Row>
-          <Col span={6}></Col>
+          <Col span={this.state.tm.connected ? 1 : 6}></Col>
           <Col span={12}>
             <Router basename="/host">
               <Switch>
                 <Route path="/connected">
-                  <p>Connected to Tournament Manager</p>
+                  {this.state.event.fieldsets
+                    .filter(f => f.type == 2)
+                    .map(fieldset => (
+                      <p>{fieldset.fields[0].name}</p>
+                    ))}
                 </Route>
                 <Route path="/">
                   <p>Connect to Tournament Manager</p>
-                  <Form layout="inline" onSubmit={this.handleSubmit}>
+                  <Form layout="vertical" onSubmit={this.handleSubmit}>
                     {this.state.tm.error ? (
                       <Alert message={this.state.tm.error} type="error" />
                     ) : null}
