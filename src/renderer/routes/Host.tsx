@@ -8,14 +8,17 @@ import {
   Icon,
   Input,
   Button,
-  Alert
+  Alert,
+  notification,
+  List,
+  Checkbox
 } from "antd";
 import { networkInterfaces, NetworkInterfaceInfoIPv4 } from "os";
 import { Switch, Route } from "react-router";
 import { HashRouter as Router } from "react-router-dom";
 
 import { ipcRenderer, IpcMessageEvent } from "electron";
-import Fieldset from "vex-tm-client/out/Fieldset";
+import Fieldset, { Field } from "vex-tm-client/out/Fieldset";
 import Division from "vex-tm-client/out/Division";
 
 const { Header, Footer, Sider, Content } = Layout;
@@ -24,6 +27,17 @@ const { Title } = Typography;
 const lanInterfaces = networkInterfaces()["en0"].filter(
   lan => lan.family === "IPv4"
 ) as NetworkInterfaceInfoIPv4[];
+
+interface Fieldcontrol {
+  fieldset: Fieldset;
+  team: string;
+  type: "DRIVER" | "PROGRAMMING";
+  use: boolean;
+  client: {
+    name: string;
+    id: string;
+  } | null;
+}
 
 export default class HostRoute extends React.Component {
   state = {
@@ -38,7 +52,8 @@ export default class HostRoute extends React.Component {
       divisions: [] as Division[],
       fieldsets: [] as Fieldset[]
     },
-    clients: []
+    clients: [] as { name: string; id: string }[],
+    fieldControl: [] as Fieldcontrol[]
   };
 
   handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -58,14 +73,30 @@ export default class HostRoute extends React.Component {
     );
     ipcRenderer.on(
       "tm-connection-successful",
-      (e: IpcMessageEvent, event: any) => {
+      (e: IpcMessageEvent, event: { fieldsets: Fieldset[] }) => {
+        const fieldControl: Fieldcontrol[] = [];
+
+        for (let fieldset of event.fieldsets.filter(
+          fs => fs.type == 2
+        ) as Fieldset[]) {
+          const field = fieldset.fields[0];
+          fieldControl.push({
+            fieldset,
+            team: "",
+            type: "DRIVER",
+            use: true,
+            client: null
+          });
+        }
+
         this.setState({
           tm: {
             ...this.state.tm,
             connecting: false,
             connected: true
           },
-          event
+          event,
+          fieldControl
         });
 
         window.location.hash = "#/host/connected";
@@ -74,6 +105,32 @@ export default class HostRoute extends React.Component {
       }
     );
   };
+
+  constructor(props: {}) {
+    super(props);
+
+    ipcRenderer.send("ws-server-start");
+    ipcRenderer.send("ws-clients-refresh");
+    ipcRenderer.on(
+      "ws-client-connect",
+      (event: IpcMessageEvent, id: string) => {
+        notification.open({
+          message: "Client Connected",
+          description: `${id}`
+        });
+        this.setState({
+          clients: [
+            ...this.state.clients,
+            {
+              id,
+              name: id,
+              fields: []
+            }
+          ]
+        });
+      }
+    );
+  }
 
   render() {
     if (
@@ -88,7 +145,7 @@ export default class HostRoute extends React.Component {
         <header>
           <p>
             {lanInterfaces.length > 0
-              ? lanInterfaces.map(lan => `ws://${lan.address}`).join(", ")
+              ? lanInterfaces.map(lan => `ws://${lan.address}:8080`).join(", ")
               : "No LAN Addresses Found"}{" "}
             ({this.state.clients.length} clients connected)
           </p>
@@ -103,11 +160,19 @@ export default class HostRoute extends React.Component {
             <Router basename="/host">
               <Switch>
                 <Route path="/connected">
-                  {this.state.event.fieldsets
-                    .filter(f => f.type == 2)
-                    .map(fieldset => (
-                      <p>{fieldset.fields[0].name}</p>
-                    ))}
+                  <List
+                    dataSource={this.state.fieldControl}
+                    itemLayout="horizontal"
+                    renderItem={item => (
+                      <List.Item key={item.fieldset.id}>
+                        <List.Item.Meta
+                          avatar={<Checkbox checked={item.use} />}
+                          title={item.fieldset.fields[0].name}
+                          description={item.type}
+                        />
+                      </List.Item>
+                    )}
+                  />
                 </Route>
                 <Route path="/">
                   <p>Connect to Tournament Manager</p>
