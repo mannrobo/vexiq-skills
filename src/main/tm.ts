@@ -13,11 +13,10 @@ const client = new Client(
   ""
 );
 
-interface IpcMainEvent {
+export interface IpcMainEvent {
   frameId: number;
   returnValue: any;
   sender: WebContents;
-  reply: (...args: any) => void;
 }
 
 ipcMain.on(
