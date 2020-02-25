@@ -5,8 +5,9 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 // Routes
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Switch, Route, Link } from "react-router-dom";
 import Index from "./routes/Index";
+import Host from "./routes/Host";
 
 // Import the styles here to process them with webpack
 import "@public/style.css";
@@ -16,8 +17,11 @@ ReactDOM.render(
   <div className="app">
     <Router>
       <Switch>
-        <Route path="/">
+        <Route exact path="/">
           <Index />
+        </Route>
+        <Route path="/host">
+          <Host />
         </Route>
       </Switch>
     </Router>

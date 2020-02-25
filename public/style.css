@@ -1,5 +1,39 @@
-#index {
+img {
+  max-width: 100%;
+}
+
+#index,
+#host {
   height: 100vh;
-  width: 100vh;
-  background-color: rgba(0, 160, 233, 0.7);
+  width: 100vw;
+  background-color: #e8e8e8;
+}
+
+#index .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#index img {
+  width: 75%;
+}
+
+#index .content h3 {
+  padding-top: 32px;
+  text-align: center;
+}
+
+#index button {
+  margin: 16px 0;
+}
+
+#host header {
+  height: 64px;
+  width: 100vw;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
 }
