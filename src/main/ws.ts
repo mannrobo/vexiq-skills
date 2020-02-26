@@ -29,6 +29,18 @@ const connect = (event: IpcMainEvent) => (
       .substring(2, 4);
   clients.set(id, socket);
 
+  console.log("connected", id);
+  socket.addEventListener("close", () => {
+    console.log("disconnected", id);
+    event.sender.send("ws-client-disconnect", id);
+    clients.delete(id);
+  });
+
+  socket.addEventListener("message", evt => {
+    console.log(`${id}: `, evt.data);
+    event.sender.send("ws-client-message", id, JSON.parse(evt.data));
+  });
+
   event.sender.send("ws-client-connect", id);
 };
 
