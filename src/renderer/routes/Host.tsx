@@ -39,6 +39,17 @@ interface Fieldcontrol {
   } | null;
 }
 
+export type ClientMessage =
+  | {
+      action: "SET_NAME";
+      name: string;
+    }
+  | {
+      action: "FIELD_CONFIGURE";
+      field: number;
+      team: string;
+      type: "Driver" | "Programming";
+    };
 export default class HostRoute extends React.Component {
   state = {
     tm: {
@@ -111,6 +122,7 @@ export default class HostRoute extends React.Component {
 
     ipcRenderer.send("ws-server-start");
     ipcRenderer.send("ws-clients-refresh");
+
     ipcRenderer.on(
       "ws-client-connect",
       (event: IpcMessageEvent, id: string) => {
@@ -128,6 +140,48 @@ export default class HostRoute extends React.Component {
             }
           ]
         });
+      }
+    );
+
+    ipcRenderer.on(
+      "ws-client-disconnect",
+      (event: IpcMessageEvent, id: string) => {
+        const client = this.state.clients.find(client => client.id == id) || {
+          id,
+          name: "Client"
+        };
+        notification.open({
+          message: "Client Disconnected",
+          description: `${client.name} (${client.id}) disconnected`
+        });
+
+        // Unassign their fields
+        this.setState({
+          clients: this.state.clients.filter(c => c.id != id),
+          fieldControl: this.state.fieldControl.map(fc => {
+            if (fc.client && fc.client.id == id) {
+              fc.client = null;
+            }
+
+            return fc;
+          })
+        });
+      }
+    );
+
+    ipcRenderer.on(
+      "ws-client-message",
+      (event: IpcMessageEvent, id: string, data: ClientMessage) => {
+        console.log(id, data);
+        switch (data.action) {
+          case "SET_NAME":
+            this.setState({
+              clients: this.state.clients.map(cl =>
+                cl.id == id ? { id, name: data.name } : cl
+              )
+            });
+            break;
+        }
       }
     );
   }
