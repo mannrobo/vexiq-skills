@@ -17,10 +17,6 @@ export default () => (
       <Button size="large" block>
         <Link to="/client">Client</Link>
       </Button>
-
-      <Button size="large" block>
-        <Link to="/display">Display</Link>
-      </Button>
     </Col>
   </Row>
 );
