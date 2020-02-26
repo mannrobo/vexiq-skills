@@ -30,32 +30,6 @@ function createWindow(): void {
     })
   );
 
-  var menu = Menu.buildFromTemplate([
-    {
-      label: "VEX IQ",
-      submenu: [
-        {
-          label: "Open New Window",
-          click() {
-            createWindow();
-          }
-        },
-        {
-          label: "Open DevTools",
-          click() {}
-        },
-        {
-          label: "Exit",
-          click() {
-            app.quit();
-          }
-        }
-      ]
-    }
-  ]);
-
-  Menu.setApplicationMenu(menu);
-
   // Emitted when the window is closed.
   mainWindow.on("closed", () => {
     // Dereference the window object, usually you would store windows
