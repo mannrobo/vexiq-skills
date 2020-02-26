@@ -3,7 +3,8 @@ img {
 }
 
 #index,
-#host {
+#host,
+#client {
   height: 100vh;
   width: 100vw;
   background-color: #e8e8e8;
@@ -36,4 +37,8 @@ img {
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
+}
+
+#client div {
+  margin-top: 32px;
 }
