@@ -1,7 +1,7 @@
 /**
  * Entry point of the Election app.
  */
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, Menu } from "electron";
 import * as path from "path";
 import * as url from "url";
 
@@ -29,6 +29,32 @@ function createWindow(): void {
       slashes: true
     })
   );
+
+  var menu = Menu.buildFromTemplate([
+    {
+      label: "VEX IQ",
+      submenu: [
+        {
+          label: "Open New Window",
+          click() {
+            createWindow();
+          }
+        },
+        {
+          label: "Open DevTools",
+          click() {}
+        },
+        {
+          label: "Exit",
+          click() {
+            app.quit();
+          }
+        }
+      ]
+    }
+  ]);
+
+  Menu.setApplicationMenu(menu);
 
   // Emitted when the window is closed.
   mainWindow.on("closed", () => {
