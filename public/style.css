@@ -39,6 +39,14 @@ img {
   padding: 0 16px;
 }
 
+#host .match-control {
+  padding: 32px;
+}
+
+#host .ant-list-item > div:not(.ant-list-item-meta) {
+  flex: 1;
+}
+
 #client div {
   margin-top: 32px;
 }
