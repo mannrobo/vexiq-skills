@@ -1,17 +1,13 @@
 /**
  * Communicates with Tournament Manager (if applicable)
+ *
+ * Acts as a proxy server between DWAB TM and the Render process
  */
 
 import { ipcMain, WebContents } from "electron";
 import Client, { AuthenticatedRole } from "vex-tm-client";
 
 const clients = new Map<number, Client>();
-
-const client = new Client(
-  "http://localhost",
-  AuthenticatedRole.ADMINISTRATOR,
-  ""
-);
 
 export interface IpcMainEvent {
   frameId: number;
@@ -50,9 +46,26 @@ ipcMain.on(
           })
         )
       });
+
+      // Set up pass through for all the fieldset events
+      for (let fs of client.fieldsets) {
+        fs.ws.on("message", data =>
+          event.sender.send("tm-fieldset-message", fs.id, data)
+        );
+      }
     } catch (e) {
       event.sender.send("tm-connection-error", e);
       console.log(e);
     }
+
+    ipcMain.on(
+      "tm-fieldset-control",
+      async (event: IpcMainEvent, fieldsetID: number, command: {}) => {
+        const fieldset = client.fieldsets.find(fc => fc.id == fieldsetID);
+        if (!fieldset) return;
+
+        fieldset.ws.send(JSON.stringify(command));
+      }
+    );
   }
 );
