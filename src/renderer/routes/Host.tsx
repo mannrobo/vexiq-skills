@@ -37,6 +37,8 @@ interface Fieldcontrol {
     name: string;
     id: string;
   } | null;
+  active: boolean;
+  timeRemaining: number;
 }
 
 export type ClientMessage =
@@ -50,6 +52,15 @@ export type ClientMessage =
       team: string;
       type: "Driver" | "Programming";
     };
+
+function timeDisplay(seconds: number) {
+  if (seconds > 59) {
+    return `1:00`;
+  }
+
+  return `0:${seconds < 10 ? "0" : ""}${seconds}`;
+}
+
 export default class HostRoute extends React.Component {
   state = {
     tm: {
@@ -96,7 +107,9 @@ export default class HostRoute extends React.Component {
             team: "",
             type: "DRIVER",
             use: true,
-            client: null
+            client: null,
+            active: false,
+            timeRemaining: 60
           });
         }
 
@@ -115,6 +128,32 @@ export default class HostRoute extends React.Component {
         sessionStorage.setItem("tm-password", this.state.tm.password);
       }
     );
+  };
+
+  toggleFieldset = (item: Fieldcontrol) => () => {
+    this.setState({
+      fieldControl: this.state.fieldControl.map(fc =>
+        fc.fieldset.id != item.fieldset.id ? fc : { ...item, use: !item.use }
+      )
+    });
+  };
+
+  startMatches = () => {
+    for (let fc of this.state.fieldControl) {
+      if (!fc.use) continue;
+
+      const fieldId = fc.fieldset.fields[0].id;
+
+      ipcRenderer.send("tm-fieldset-control", fc.fieldset.id, {
+        action: "reset",
+        fieldId
+      });
+
+      ipcRenderer.send("tm-fieldset-control", fc.fieldset.id, {
+        action: "start",
+        fieldId
+      });
+    }
   };
 
   constructor(props: {}) {
@@ -184,6 +223,37 @@ export default class HostRoute extends React.Component {
         }
       }
     );
+
+    ipcRenderer.on(
+      "tm-fieldset-message",
+      (event: IpcMessageEvent, id: number, data: any) => {
+        data = JSON.parse(data);
+
+        console.log(id, data);
+
+        if (data.type == "matchStarted") {
+          this.setState({
+            fieldControl: this.state.fieldControl.map(fc =>
+              fc.fieldset.id == id ? { ...fc, active: true } : fc
+            )
+          });
+        } else if (data.type == "matchStopped") {
+          this.setState({
+            fieldControl: this.state.fieldControl.map(fc =>
+              fc.fieldset.id == id ? { ...fc, active: false } : fc
+            )
+          });
+        } else if (data.type == "timeUpdated") {
+          this.setState({
+            fieldControl: this.state.fieldControl.map(fc =>
+              fc.fieldset.id == id
+                ? { ...fc, timeRemaining: data.remaining, type: data.state }
+                : fc
+            )
+          });
+        }
+      }
+    );
   }
 
   render() {
@@ -210,7 +280,7 @@ export default class HostRoute extends React.Component {
         </header>
         <Row>
           <Col span={this.state.tm.connected ? 1 : 6}></Col>
-          <Col span={12}>
+          <Col span={this.state.tm.connected ? 22 : 12}>
             <Router basename="/host">
               <Switch>
                 <Route path="/connected">
@@ -220,13 +290,35 @@ export default class HostRoute extends React.Component {
                     renderItem={item => (
                       <List.Item key={item.fieldset.id}>
                         <List.Item.Meta
-                          avatar={<Checkbox checked={item.use} />}
+                          avatar={
+                            <Checkbox
+                              checked={item.use}
+                              onChange={this.toggleFieldset(item)}
+                            />
+                          }
                           title={item.fieldset.fields[0].name}
                           description={item.type}
                         />
+                        <div>
+                          <strong>3796B</strong>
+                          <p>Some Assembly Required</p>
+                        </div>
+                        <p style={{ marginRight: "auto" }}>
+                          {`${timeDisplay(item.timeRemaining)} ${
+                            item.active ? " (RUNNING)" : ""
+                          }`}
+                        </p>
                       </List.Item>
                     )}
                   />
+
+                  <Button
+                    type="primary"
+                    size="large"
+                    onClick={this.startMatches}
+                  >
+                    Start Matches
+                  </Button>
                 </Route>
                 <Route path="/">
                   <p>Connect to Tournament Manager</p>
