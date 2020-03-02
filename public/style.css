@@ -47,6 +47,9 @@ img {
   flex: 1;
 }
 
-#client div {
+#client .main {
   margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }

@@ -9,6 +9,7 @@ import { HashRouter as Router, Switch, Route, Link } from "react-router-dom";
 import Index from "./routes/Index";
 import Host from "./routes/Host";
 import Client from "./routes/Client";
+import Display from "./routes/Display";
 
 // Import the styles here to process them with webpack
 import "@public/style.css";
@@ -26,6 +27,9 @@ ReactDOM.render(
         </Route>
         <Route path="/client">
           <Client />
+        </Route>
+        <Route path="/display">
+          <Display />
         </Route>
       </Switch>
     </Router>

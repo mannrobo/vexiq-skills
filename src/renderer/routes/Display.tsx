@@ -1,19 +1,5 @@
 import * as React from "react";
-import {
-  Row,
-  Col,
-  Typography,
-  Layout,
-  Form,
-  Icon,
-  Input,
-  Button,
-  Alert,
-  notification,
-  List,
-  Checkbox
-} from "antd";
-import { networkInterfaces, NetworkInterfaceInfoIPv4 } from "os";
+import { Row, Col, Typography, Layout, Button } from "antd";
 import { Switch, Route } from "react-router";
 import { HashRouter as Router } from "react-router-dom";
 
@@ -24,9 +10,9 @@ import Division from "vex-tm-client/out/Division";
 const { Header, Footer, Sider, Content } = Layout;
 const { Title } = Typography;
 
-export default class ClientRoute extends React.Component {
+export default class DisplayRoute extends React.Component {
   openDisplay = () => {
-    window.open("#/display");
+    window.open("#/");
   };
 
   render() {
@@ -35,9 +21,7 @@ export default class ClientRoute extends React.Component {
         <Row>
           <Col span={2} />
           <Col span={20} className="main">
-            <Button type="primary" id="display-open" onClick={this.openDisplay}>
-              Open Display
-            </Button>
+            <Title>Skills!</Title>
           </Col>
           <Col span={2} />
         </Row>
