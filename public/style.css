@@ -2,9 +2,20 @@ img {
   max-width: 100%;
 }
 
+@font-face {
+  font-family: "Noto Sans";
+  src: url(../public/NotoSans-Regular.ttf);
+}
+
+body,
+html {
+  font-family: "Noto Sans", Roboto, sans-serif;
+}
+
 #index,
 #host,
-#client {
+#client,
+#display {
   height: 100vh;
   width: 100vw;
   background-color: #e8e8e8;
@@ -51,5 +62,71 @@ img {
   margin-top: 32px;
   display: flex;
   flex-direction: column;
+  justify-content: space-evenly;
+}
+
+#client #display-open {
+  margin-bottom: 32px;
+}
+
+#display {
+  background-color: #0077bb;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+#display .titlebar {
+  height: 15vh;
+  width: 100%;
+  position: fixed;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+  background-color: #0077bb;
+  padding: 0 16px;
+}
+
+#display .titlebar img {
+  max-height: 75%;
+  padding: 0 16px;
+}
+
+#display .gear-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+#display .content {
+  flex: 1;
+}
+
+#display .time-indicator,
+#display .team-list {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+#display .team-list * {
+  color: #fff;
+}
+
+#display .team-list .team {
+  display: flex;
+  justify-content: left;
+}
+
+#display .team-list .team .team-info {
+  margin-left: 64px;
+}
+
+#display .time-indicator #time-remaining {
+  font-size: 20vh;
+  color: #fff;
+  margin: 0;
 }
