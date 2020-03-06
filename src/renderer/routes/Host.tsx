@@ -28,7 +28,7 @@ const lanInterfaces = networkInterfaces()["en0"].filter(
   lan => lan.family === "IPv4"
 ) as NetworkInterfaceInfoIPv4[];
 
-interface Fieldcontrol {
+export interface Fieldcontrol {
   fieldset: Fieldset;
   team: string;
   type: "DRIVER" | "PROGRAMMING";
