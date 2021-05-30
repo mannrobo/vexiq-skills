@@ -39,7 +39,7 @@
     "react-router-dom": "^5.1.2",
     "uuid": "^7.0.0",
     "vex-tm-client": "^0.0.1",
-    "ws": "^7.2.1"
+    "ws": "^7.4.6"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.7",
